@@ -5,14 +5,24 @@
   "license": "MIT",
   "author": "3팀",
   "type": "module",
-  "main": "server.js",
+  "main": "./src/server.js",
+  "imports": {
+    "#generated/*": "./generated/*",
+    "#config": "./src/config/config.js",
+    "#db/*": "./src/db/*",
+    "#constants": "./src/constants/index.js",
+    "#errors": "./src/errors/index.js",
+    "#middlewares": "./src/middlewares/index.js",
+    "#repositories": "./src/repositories/index.js",
+    "#utils": "./src/utils/index.js"
+  },
   "scripts": {
     "dev": "nodemon --env-file=./env/.env.development ./src/server.js",
     "prisma:reset": "dotenv -e ./env/.env.development -- npx prisma migrate reset",
     "prisma:generate": "dotenv -e ./env/.env.development -- npx prisma generate",
     "prisma:migrate": "dotenv -e ./env/.env.development -- npx prisma migrate dev",
     "prisma:studio": "dotenv -e ./env/.env.development -- npx prisma studio",
-    "seed": "node --env-file=./env/.env.development ./scripts/seed.js --allow-reset=prisma_blog",
+    "seed": "node --env-file=./env/.env.development ./scripts/seed.js --allow-reset=",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint ."
