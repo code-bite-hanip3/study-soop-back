@@ -1,0 +1,43 @@
+{
+  "name": "study_soop",
+  "version": "0.0.1",
+  "description": "fullstack 15기 공부의 숲",
+  "license": "MIT",
+  "author": "3팀",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon --env-file=./env/.env.development ./src/server.js",
+    "prisma:reset": "dotenv -e ./env/.env.development -- npx prisma migrate reset",
+    "prisma:generate": "dotenv -e ./env/.env.development -- npx prisma generate",
+    "prisma:migrate": "dotenv -e ./env/.env.development -- npx prisma migrate dev",
+    "prisma:studio": "dotenv -e ./env/.env.development -- npx prisma studio",
+    "seed": "node --env-file=./env/.env.development ./scripts/seed.js --allow-reset=prisma_blog",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint ."
+  },
+  "engines": {
+    "node": ">=26 <27",
+    "npm": ">=11"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@faker-js/faker": "^10.6.0",
+    "dotenv-cli": "^11.0.0",
+    "eslint": "^10.9.1",
+    "nodemon": "^3.1.14",
+    "prettier": "^3.9.6",
+    "prisma": "^7.10.0"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "^7.10.0",
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.23.0",
+    "zod": "^4.5.4"
+  }
+}
