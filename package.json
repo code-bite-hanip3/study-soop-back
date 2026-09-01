@@ -14,7 +14,8 @@
     "#errors": "./src/errors/index.js",
     "#middlewares": "./src/middlewares/index.js",
     "#repositories": "./src/repositories/index.js",
-    "#utils": "./src/utils/index.js"
+    "#utils": "./src/utils/index.js",
+    "#routes": "./src/routes/index.js"
   },
   "scripts": {
     "dev": "nodemon --env-file=./env/.env.development ./src/server.js",
