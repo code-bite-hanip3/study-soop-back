@@ -3,3 +3,5 @@ package.json 파일에서 스크립트 "seed"의 리셋할 데이터 베이스 �
 http-status는 넣었지만 error-message는 따로 설정해야해서 넣지 않았습니다.
 
 npm run dev하면 오류가 생깁니다. 환경변수에 데이터베이스 주소를 넣어야 작동합니다
+
+폴더 구조를 잡을 때 index.js로 export하는 경우가 아니면 .gitkeep을 넣었습니다.
