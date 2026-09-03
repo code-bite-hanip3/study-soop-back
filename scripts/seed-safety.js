@@ -1,4 +1,4 @@
-const DATABASE_NAME = '데이터베이스_이름';
+const DATABASE_NAME = 'study_forest';
 const RESET_CONFIRMATION = `--allow-reset=${DATABASE_NAME}`;
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
 
@@ -21,20 +21,19 @@ export function assertSafeSeedTarget({ databaseUrl, nodeEnv, args }) {
     databaseName !== DATABASE_NAME ||
     !isConfirmed
   ) {
-    console.log(nodeEnv);
-    console.log('!', !isPostgres);
-    console.log(!LOCAL_HOSTS.has(target.hostname));
-    console.log(
-      'databaseName !== DATABASE_NAME',
-      databaseName !== DATABASE_NAME,
-    );
-    console.log('!isConfirmed', !isConfirmed);
-    throw new Error('Refusing to reset a database outside the local target');
+    throw new Error('로컬 개발 DB가 아니면 시드 리셋을 거부합니다');
   }
 
   return true;
 }
 
-export function resetBlogData(prisma) {
-  return prisma.$transaction([prisma.study.deleteMany()]);
+export function resetStudyData(prisma) {
+  return prisma.$transaction([
+    prisma.habitRecord.deleteMany(),
+    prisma.habit.deleteMany(),
+    prisma.studyReaction.deleteMany(),
+    prisma.pointHistory.deleteMany(),
+    prisma.focusSession.deleteMany(),
+    prisma.study.deleteMany(),
+  ]);
 }
