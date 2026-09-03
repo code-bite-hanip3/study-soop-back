@@ -6,3 +6,104 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model Study {
+  id              Int      @id @default(autoincrement())
+  creatorNickname String
+  name            String   @unique
+  description     String
+  backgroundType  String
+  backgroundValue String
+  passwordHash    String
+  pointTotal      Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  studyReactions StudyReaction[]
+  habits         Habit[]
+  focusSessions  FocusSession[]
+  pointHistories PointHistory[]
+}
+
+model StudyReaction {
+  id        Int      @id @default(autoincrement())
+  emoji     String
+  count     Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  studyId Int
+  study   Study @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
+  @@unique([emoji, studyId])
+}
+
+model Habit {
+  id        Int      @id @default(autoincrement())
+  name      String
+  setOrder  Int
+  isActive  Boolean  @default(true) // 생성후 기본값 활성화 상태
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  studyId      Int
+  study        Study         @relation(fields: [studyId], references: [id], onDelete: Cascade)
+  habitRecords HabitRecord[]
+}
+
+model HabitRecord {
+  id          Int       @id @default(autoincrement())
+  dateKey     DateTime  @default(now()) @db.Date // 습관 하나에 날짜를 각각 부여해서 같은 날 같은 습관 등록 방지
+  isCompleted Boolean   @default(false) // 생성 직후 기본값
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  habitId Int
+  habit   Habit @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@unique([dateKey, habitId])
+}
+
+model FocusSession {
+  id                Int                @id @default(autoincrement())
+  durationSeconds   Int
+  accumulateSeconds Int
+  status            FocusSessionStatus @default(READY)
+  lastResumedAt     DateTime?
+  startedAt         DateTime?
+  endedAt           DateTime?
+  earnedPoint       Int
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  studyId        Int
+  study          Study          @relation(fields: [studyId], references: [id], onDelete: Cascade)
+  pointHistories PointHistory[]
+}
+
+enum FocusSessionStatus {
+  READY
+  RUNNING
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+model PointHistory {
+  id        Int              @id @default(autoincrement())
+  amount    Int
+  type      PointHistoryType
+  createdAt DateTime         @default(now())
+
+  studyId        Int
+  study          Study        @relation(fields: [studyId], references: [id], onDelete: Cascade)
+  focusSessionId Int
+  focusSession   FocusSession @relation(fields: [focusSessionId], references: [id], onDelete: Cascade)
+}
+
+enum PointHistoryType {
+  COMPLETED
+  BONUS
+  ADJUSTMENT
+}
