@@ -1,14 +1,14 @@
+// 환경변수를 zod로 검증합니다. (건드리지 않아도 됩니다)
 import { flattenError, z } from 'zod';
 
 const envSchema = z.object({
-  NODE_ENV: z.enum(['development', 'production']),
-  PORT: z.coerce.number().int().min(1000).max(65535).default(5001),
+  NODE_ENV: z
+    .enum(['development', 'production', 'test'])
+    .default('development'),
+  PORT: z.coerce.number().int().min(1000).max(65535).default(30000),
   DATABASE_URL: z
     .url()
-    .refine(
-      (url) => url.startsWith('postgresql:') || url.startsWith('postgres:'),
-      'PostgreSQL 연결 URL이어야 합니다.',
-    ),
+    .refine((url) => url.startsWith('postgresql:'), 'PostgreSQL 연결 URL이어야 합니다.'),
 });
 
 const parseEnvironment = () => {
@@ -29,3 +29,4 @@ const parseEnvironment = () => {
 export const config = parseEnvironment();
 export const isDevelopment = config.NODE_ENV === 'development';
 export const isProduction = config.NODE_ENV === 'production';
+export const isTest = config.NODE_ENV === 'test';
