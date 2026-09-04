@@ -11,7 +11,17 @@ export default defineConfig([
       globals: { ...globals.node },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^_' }],
+      'no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^',
+          caughtErrorsIgnorePattern: '^',
+          varsIgnorePattern: '^_',
+        },
+      ],
+      'no-console': 'off',
+      'prefer-const': 'error',
+      'no-var': 'error',
     },
   },
 ]);
