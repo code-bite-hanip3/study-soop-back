@@ -1,11 +1,68 @@
-// 집중 세션 라우트 (⑤ 오늘의 집중 담당)
-
-//   POST  /                  → 집중 세션 시작 (RUNNING, verifyStudyPassword)
-//   PATCH /:focusSessionId   → 상태 전이 (verifyStudyPassword, { status: ..., password })
-//                               - FOCUS_SESSION_TRANSITIONS 외 전이/완료 중복 → ConflictException(409)
 import express from 'express';
+import { focusSession } from '#repositories';
+import { BadRequestException, NotFoundException } from '#errors';
+import { calculateStatusUpdate } from '#utils';
+import { checkStatus } from '#middlewares';
 
-export const focusSessionsRouter = express.Router();
+export const focusSessionsRouter = express.Router({ mergeParams: true });
 
-// TODO(⑤ 담당): 아래처럼 구현
-// focusSessionsRouter.post('/', async (req, res, next) => { ... });
+focusSessionsRouter.get('/:studyId', async (req, res) => {
+  const studyId = Number(req.params.studyId);
+  const data = await focusSession.getSessionList(studyId);
+  if (!data) {
+    throw new NotFoundException('스터디 사용자를 찾을 수 없습니다');
+  }
+  return res.json({
+    success: true,
+    data: data,
+    message: '사용자 총 점수 조회',
+  });
+});
+
+focusSessionsRouter.post('/:studyId', async (req, res) => {
+  const studyId = Number(req.params.studyId);
+  const data = await focusSession.createSession(studyId);
+  return res.json({
+    success: true,
+    data: data,
+    message: '새 기록이 추가되었습니다',
+  });
+});
+
+focusSessionsRouter.patch('/:id', checkStatus, async (req, res) => {
+  const status = req.body.status ?? {};
+  const id = Number(req.params.id);
+  const data = await focusSession.findOne(id);
+
+  if (!data) {
+    return res.status(404).json({ message: '기록을 찾을 수 없습니다' });
+  }
+
+  if (data.status === 'COMPLETED') {
+    return res.status(400).json({ message: '이미 완성된 기록입니다' });
+  }
+
+  const newData = calculateStatusUpdate(status, data);
+
+  const updatedData = await focusSession.updateSession(id, newData);
+  return res.json({
+    success: true,
+    data: updatedData,
+    message: '기록이 수정되었습니다',
+  });
+});
+
+focusSessionsRouter.delete('/:id', checkStatus, async (req, res) => {
+  const id = Number(req.params.id);
+  const status = req.body.status ?? '';
+
+  if (status !== 'CANCELLED') {
+    throw new BadRequestException('상태값은 CANCELLED이어야 합니다');
+  }
+  const result = await focusSession.deleteSession(id);
+  return res.json({
+    success: true,
+    data: result,
+    message: '기록이 삭제되었습니다',
+  });
+});

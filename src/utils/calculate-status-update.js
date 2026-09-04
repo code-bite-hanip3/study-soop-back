@@ -1,0 +1,50 @@
+import { BadRequestException } from '#errors';
+
+export function calculateStatusUpdate(status, data) {
+  const COMPLETE_POINT = 3;
+  const BONUS_POINT = 1;
+  let accumulateSeconds;
+  let lastResumedAt;
+  let endedAt;
+  let earnedPoint;
+
+  switch (status) {
+    case 'PAUSED': {
+      const accumulatedMilliseconds =
+        new Date() - (data.lastResumedAt || data.startedAt);
+      accumulateSeconds =
+        data.accumulateSeconds + Math.floor(accumulatedMilliseconds / 1000);
+      break;
+    }
+    case 'RUNNING': {
+      lastResumedAt = new Date();
+      break;
+      // 상태별로 필요한 필드만 세팅. undefined인 필드는 Prisma가 업데이트에서 자동 제외함
+    }
+    case 'COMPLETED': {
+      endedAt = new Date();
+      const accumulatedMilliseconds =
+        data.accumulateSeconds * 1000 +
+        endedAt -
+        (data.lastResumedAt || data.startedAt);
+      accumulateSeconds = Math.floor(accumulatedMilliseconds / 1000);
+      earnedPoint =
+        COMPLETE_POINT +
+        BONUS_POINT * Math.floor(accumulateSeconds / (60 * 10));
+      break;
+    }
+    default: {
+      throw new BadRequestException('유효하지 않은 상태값입니다');
+    }
+  }
+
+  const newData = {
+    accumulateSeconds,
+    status,
+    lastResumedAt,
+    endedAt,
+    earnedPoint,
+  };
+
+  return newData;
+}

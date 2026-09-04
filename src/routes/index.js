@@ -22,5 +22,5 @@ router.get('/health-check', (req, res) => {
 // router.use('/studies', studiesRouter);
 // router.use('/habits', habitsRouter);
 // router.use('/habit-records', habitRecordsRouter);
-// router.use('/focus-sessions', focusSessionsRouter);
+router.use('/focus-sessions', focusSessionsRouter);
 // router.use('/point-histories', pointHistoriesRouter);
