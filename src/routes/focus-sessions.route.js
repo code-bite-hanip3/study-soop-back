@@ -7,8 +7,8 @@ import { HTTP_STATUS } from '#constants';
 
 export const focusSessionsRouter = express.Router({ mergeParams: true });
 
-focusSessionsRouter.get('/:studyId', async (req, res) => {
-  const studyId = Number(req.params.studyId);
+focusSessionsRouter.get('/', async (req, res) => {
+  const studyId = req.body.studyId;
   const data = await focusSession.getSessionList(studyId);
   if (!data) {
     throw new NotFoundException('스터디 사용자를 찾을 수 없습니다');
@@ -20,8 +20,8 @@ focusSessionsRouter.get('/:studyId', async (req, res) => {
   });
 });
 
-focusSessionsRouter.post('/:studyId', async (req, res) => {
-  const studyId = Number(req.params.studyId);
+focusSessionsRouter.post('/', async (req, res) => {
+  const studyId = req.body.studyId;
   const data = await focusSession.createSession(studyId);
   return res.status(HTTP_STATUS.CREATED).json({
     success: true,
@@ -32,7 +32,7 @@ focusSessionsRouter.post('/:studyId', async (req, res) => {
 
 focusSessionsRouter.patch('/:id', checkStatus, async (req, res) => {
   const status = req.body.status ?? {};
-  const id = Number(req.params.id);
+  const id = req.params.id;
   const data = await focusSession.findOne(id);
 
   if (!data) {
@@ -54,7 +54,7 @@ focusSessionsRouter.patch('/:id', checkStatus, async (req, res) => {
 });
 
 focusSessionsRouter.delete('/:id', checkStatus, async (req, res) => {
-  const id = Number(req.params.id);
+  const id = req.params.id;
   const status = req.body.status ?? '';
 
   if (status !== 'CANCELLED') {
