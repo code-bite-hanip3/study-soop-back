@@ -1,9 +1,8 @@
 import express from 'express';
 import { focusSession } from '#repositories';
-import { BadRequestException, NotFoundException } from '#errors';
 import { calculateStatusUpdate, success } from '#utils';
 import { checkStatus } from '#middlewares';
-import { HTTP_STATUS } from '#constants';
+import { FOCUS_SESSION_STATUS, HTTP_STATUS } from '#constants';
 
 export const focusSessionsRouter = express.Router({ mergeParams: true });
 
@@ -42,7 +41,7 @@ focusSessionsRouter.patch('/:id', checkStatus, async (req, res) => {
     return fail(res, HTTP_STATUS.NOT_FOUND, '기록을 찾을 수 없습니다');
   }
 
-  if (data.status === 'COMPLETED') {
+  if (data.status === FOCUS_SESSION_STATUS.COMPLETED) {
     return fail(res, HTTP_STATUS.BAD_REQUEST, '이미 완성된 기록입니다');
   }
 
@@ -61,7 +60,7 @@ focusSessionsRouter.delete('/:id', checkStatus, async (req, res) => {
   const id = req.params.id;
   const status = req.body.status ?? '';
 
-  if (status !== 'CANCELLED') {
+  if (status !== FOCUS_SESSION_STATUS.CANCELLED) {
     return fail(
       res,
       HTTP_STATUS.BAD_REQUEST,

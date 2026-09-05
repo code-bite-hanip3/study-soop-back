@@ -1,3 +1,4 @@
+import { FOCUS_SESSION_STATUS } from '#constants';
 import { prisma } from '#db/prisma.js';
 
 function getSessionList(studyId) {
@@ -17,7 +18,7 @@ function createSession(studyId) {
       studyId: studyId,
       durationSeconds: 0,
       accumulatedSeconds: 0,
-      status: 'RUNNING',
+      status: FOCUS_SESSION_STATUS.RUNNING,
       earnedPoint: 0,
       startedAt: new Date(),
     },

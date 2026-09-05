@@ -1,3 +1,4 @@
+import { FOCUS_SESSION_STATUS } from '#constants';
 import { BadRequestException } from '#errors';
 
 export function calculateStatusUpdate(status, data) {
@@ -9,19 +10,19 @@ export function calculateStatusUpdate(status, data) {
   let earnedPoint;
 
   switch (status) {
-    case 'PAUSED': {
+    case FOCUS_SESSION_STATUS.PAUSED: {
       const accumulatedMilliseconds =
         new Date() - (data.lastResumedAt || data.startedAt);
       accumulatedSeconds =
         data.accumulatedSeconds + Math.floor(accumulatedMilliseconds / 1000);
       break;
     }
-    case 'RUNNING': {
+    case FOCUS_SESSION_STATUS.RUNNING: {
       lastResumedAt = new Date();
       break;
       // 상태별로 필요한 필드만 세팅. undefined인 필드는 Prisma가 업데이트에서 자동 제외함
     }
-    case 'COMPLETED': {
+    case FOCUS_SESSION_STATUS.COMPLETED: {
       endedAt = new Date();
       const accumulatedMilliseconds =
         data.accumulatedSeconds * 1000 +
