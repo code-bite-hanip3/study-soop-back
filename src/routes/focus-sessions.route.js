@@ -42,7 +42,7 @@ focusSessionsRouter.patch('/:id', checkStatus, async (req, res) => {
   }
 
   if (data.status === FOCUS_SESSION_STATUS.COMPLETED) {
-    return fail(res, HTTP_STATUS.BAD_REQUEST, '이미 완성된 기록입니다');
+    return fail(res, HTTP_STATUS.CONFLICT, '이미 완성된 기록입니다');
   }
 
   const newData = calculateStatusUpdate(status, data);

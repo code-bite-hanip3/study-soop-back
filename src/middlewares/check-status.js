@@ -1,10 +1,9 @@
-import { FOCUS_SESSION_STATUS } from '#constants';
-import { BadRequestException } from '#errors';
+import { FOCUS_SESSION_STATUS, HTTP_STATUS } from '#constants';
 
-export const checkStatus = (req, _res, next) => {
+export const checkStatus = (req, res, next) => {
   const status = req.body.status ?? '';
   if (!FOCUS_SESSION_STATUS.includes(status)) {
-    throw new BadRequestException('유효하지 않은 상태값입니다');
+    return fail(res, HTTP_STATUS.BAD_REQUEST, '유효하지 않은 상태값입니다');
   }
   next();
 };
