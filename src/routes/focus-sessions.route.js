@@ -10,8 +10,9 @@ export const focusSessionsRouter = express.Router({ mergeParams: true });
 focusSessionsRouter.get('/', async (req, res) => {
   const studyId = req.body.studyId;
   const data = await focusSession.getSessionList(studyId);
+
   if (!data) {
-    throw new NotFoundException('스터디 사용자를 찾을 수 없습니다');
+    return fail(res, HTTP_STATUS.NOT_FOUND, '스터디 사용자를 찾을 수 없습니다');
   }
 
   return success(res, {
@@ -38,11 +39,11 @@ focusSessionsRouter.patch('/:id', checkStatus, async (req, res) => {
   const data = await focusSession.findOne(id);
 
   if (!data) {
-    return res.status(404).json({ message: '기록을 찾을 수 없습니다' });
+    return fail(res, HTTP_STATUS.NOT_FOUND, '기록을 찾을 수 없습니다');
   }
 
   if (data.status === 'COMPLETED') {
-    return res.status(400).json({ message: '이미 완성된 기록입니다' });
+    return fail(res, HTTP_STATUS.BAD_REQUEST, '이미 완성된 기록입니다');
   }
 
   const newData = calculateStatusUpdate(status, data);
@@ -61,14 +62,14 @@ focusSessionsRouter.delete('/:id', checkStatus, async (req, res) => {
   const status = req.body.status ?? '';
 
   if (status !== 'CANCELLED') {
-    throw new BadRequestException('상태값은 CANCELLED이어야 합니다');
+    return fail(
+      res,
+      HTTP_STATUS.BAD_REQUEST,
+      '상태값은 CANCELLED이어야 합니다',
+    );
   }
   const result = await focusSession.deleteSession(id);
-  // return res.status(HTTP_STATUS.NO_CONTENT).json({
-  //   success: true,
-  //   data: result,
-  //   message: '기록이 삭제되었습니다',
-  // });
+
   return success(res, {
     status: HTTP_STATUS.NO_CONTENT,
     data: result,
