@@ -16,7 +16,7 @@ function createSession(studyId) {
     data: {
       studyId: studyId,
       durationSeconds: 0,
-      accumulateSeconds: 0,
+      accumulatedSeconds: 0,
       status: 'RUNNING',
       earnedPoint: 0,
       startedAt: new Date(),

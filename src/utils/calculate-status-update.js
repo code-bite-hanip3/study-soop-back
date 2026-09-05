@@ -3,7 +3,7 @@ import { BadRequestException } from '#errors';
 export function calculateStatusUpdate(status, data) {
   const COMPLETE_POINT = 3;
   const BONUS_POINT = 1;
-  let accumulateSeconds;
+  let accumulatedSeconds;
   let lastResumedAt;
   let endedAt;
   let earnedPoint;
@@ -12,8 +12,8 @@ export function calculateStatusUpdate(status, data) {
     case 'PAUSED': {
       const accumulatedMilliseconds =
         new Date() - (data.lastResumedAt || data.startedAt);
-      accumulateSeconds =
-        data.accumulateSeconds + Math.floor(accumulatedMilliseconds / 1000);
+      accumulatedSeconds =
+        data.accumulatedSeconds + Math.floor(accumulatedMilliseconds / 1000);
       break;
     }
     case 'RUNNING': {
@@ -24,13 +24,13 @@ export function calculateStatusUpdate(status, data) {
     case 'COMPLETED': {
       endedAt = new Date();
       const accumulatedMilliseconds =
-        data.accumulateSeconds * 1000 +
+        data.accumulatedSeconds * 1000 +
         endedAt -
         (data.lastResumedAt || data.startedAt);
-      accumulateSeconds = Math.floor(accumulatedMilliseconds / 1000);
+      accumulatedSeconds = Math.floor(accumulatedMilliseconds / 1000);
       earnedPoint =
         COMPLETE_POINT +
-        BONUS_POINT * Math.floor(accumulateSeconds / (60 * 10));
+        BONUS_POINT * Math.floor(accumulatedSeconds / (60 * 10));
       break;
     }
     default: {
@@ -39,7 +39,7 @@ export function calculateStatusUpdate(status, data) {
   }
 
   const newData = {
-    accumulateSeconds,
+    accumulatedSeconds,
     status,
     lastResumedAt,
     endedAt,
