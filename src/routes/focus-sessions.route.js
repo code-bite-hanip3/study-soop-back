@@ -1,11 +1,101 @@
-// 집중 세션 라우트 (⑤ 오늘의 집중 담당)
-
-//   POST  /                  → 집중 세션 시작 (RUNNING, verifyStudyPassword)
-//   PATCH /:focusSessionId   → 상태 전이 (verifyStudyPassword, { status: ..., password })
-//                               - FOCUS_SESSION_TRANSITIONS 외 전이/완료 중복 → ConflictException(409)
 import express from 'express';
+import { focusSession } from '#repositories';
+import { calculateStatusUpdate, success } from '#utils';
+import { checkStatus, requireAuth } from '#middlewares';
+import { FOCUS_SESSION_STATUS, HTTP_STATUS } from '#constants';
 
-export const focusSessionsRouter = express.Router();
+export const focusSessionsRouter = express.Router({ mergeParams: true });
 
-// TODO(⑤ 담당): 아래처럼 구현
-// focusSessionsRouter.post('/', async (req, res, next) => { ... });
+focusSessionsRouter.get('/', async (req, res, next) => {
+  try {
+    await requireAuth(req);
+    const studyId = req.body.studyId;
+    const data = await focusSession.getSessionList(studyId);
+
+    if (!data) {
+      return fail(
+        res,
+        HTTP_STATUS.NOT_FOUND,
+        '스터디 사용자를 찾을 수 없습니다',
+      );
+    }
+
+    return success(res, {
+      status: HTTP_STATUS.OK,
+      data: data,
+      message: '사용자 총 점수 조회',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+focusSessionsRouter.post('/', async (req, res, next) => {
+  try {
+    await requireAuth(req);
+    const studyId = req.body.studyId;
+    const data = await focusSession.createSession(studyId);
+
+    return success(res, {
+      status: HTTP_STATUS.CREATED,
+      data: data,
+      message: '새 기록이 추가되었습니다',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+focusSessionsRouter.patch('/:id', checkStatus, async (req, res, next) => {
+  try {
+    await requireAuth(req);
+    const status = req.body.status ?? {};
+    const id = req.params.id;
+    const data = await focusSession.findOne(id);
+
+    if (!data) {
+      return fail(res, HTTP_STATUS.NOT_FOUND, '기록을 찾을 수 없습니다');
+    }
+
+    if (data.status === FOCUS_SESSION_STATUS.COMPLETED) {
+      return fail(res, HTTP_STATUS.CONFLICT, '이미 완성된 기록입니다');
+    }
+
+    const newData = calculateStatusUpdate(status, data);
+
+    const updatedData = await focusSession.updateSession(id, newData);
+
+    return success(res, {
+      status: HTTP_STATUS.OK,
+      data: updatedData,
+      message: '기록이 수정되었습니다',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+focusSessionsRouter.delete('/:id', checkStatus, async (req, res, next) => {
+  try {
+    await requireAuth(req);
+    const id = req.params.id;
+    const status = req.body.status ?? '';
+
+    if (status !== FOCUS_SESSION_STATUS.CANCELLED) {
+      return fail(
+        res,
+        HTTP_STATUS.BAD_REQUEST,
+        '상태값은 CANCELLED이어야 합니다',
+      );
+    }
+    const result = await focusSession.deleteSession(id);
+
+    return success(res, {
+      status: HTTP_STATUS.NO_CONTENT,
+      data: result,
+      message: '기록이 삭제되었습니다',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
