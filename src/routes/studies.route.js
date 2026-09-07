@@ -9,6 +9,12 @@
 //   GET    /:studyId/reactions        → 응원 이모지 조회 (5.17)
 //   (v6: access-tokens 토큰 발급 폐기 — 인증은 각 쓰기 라우트에서
 //    verifyStudyPassword(req)로 Body의 password를 bcrypt.compare 검증)
+
+import { HTTP_STATUS, BACKGROUND_TYPE } from '#constants';
+import { BadRequestException } from '#errors';
+import { studyRepository } from '#repositories';
+import { success } from '#utils';
+import bcrypt from 'bcrypt';
 import express from 'express';
 
 export const studiesRouter = express.Router();
@@ -17,3 +23,31 @@ export const studiesRouter = express.Router();
 // studiesRouter.get('/', async (req, res, next) => { ... });
 // studiesRouter.post('/', /* validate */ async (req, res, next) => { ... });
 // studiesRouter.get('/:studyId', async (req, res, next) => { ... });
+
+studiesRouter.post('/', async (req, res) => {
+  const {
+    creatorNickname,
+    name,
+    description,
+    backgroundType = BACKGROUND_TYPE.COLOR,
+    backgroundValue,
+    password,
+  } = req.body ?? {};
+
+  if (!name) {
+    throw new BadRequestException('스터디 이름을 입력해주세요');
+  }
+
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  const study = await studyRepository.create({
+    creatorNickname,
+    name,
+    description,
+    backgroundType,
+    backgroundValue,
+    passwordHash,
+  });
+
+  return success(res, { status: HTTP_STATUS.CREATED, data: study });
+});
