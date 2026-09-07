@@ -49,5 +49,5 @@ export async function verifyStudyPassword(req) {
   return study;
 }
 
-// 하위 호환: 기존 requireAuth 이름으로도 import 가능 (v6에서는 위 헬퍼 사용 권장)
+// 하위 호환: 기존 requireAuth 이름으로도 import 가능 (위 헬퍼 사용 권장)
 export const requireAuth = verifyStudyPassword;

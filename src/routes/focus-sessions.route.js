@@ -1,6 +1,6 @@
 import express from 'express';
 import { focusSession } from '#repositories';
-import { calculateStatusUpdate, success } from '#utils';
+import { calculateStatusUpdate, fail, success } from '#utils';
 import { checkStatus, requireAuth } from '#middlewares';
 import { FOCUS_SESSION_STATUS, HTTP_STATUS } from '#constants';
 
