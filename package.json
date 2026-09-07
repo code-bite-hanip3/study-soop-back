@@ -21,7 +21,7 @@
     "prisma:generate": "dotenv -e ./env/.env.development -- npx prisma generate",
     "prisma:migrate": "dotenv -e ./env/.env.development -- npx prisma migrate dev",
     "prisma:studio": "dotenv -e ./env/.env.development -- npx prisma studio",
-    "seed": "node --env-file=./env/.env.development ./scripts/seed.js --allow-reset=study_forest",
+    "seed": "node --env-file=./env/.env.development ./scripts/seed.js --allow-reset=study_soop_test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint ."
