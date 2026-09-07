@@ -18,7 +18,7 @@ import { success } from '#utils';
 
 export const studiesRouter = express.Router();
 
-// GET /studies — 스터디 목록 조회 (① 담당, Public) — 명세 5.2
+// GET /studies — 스터디 목록 조회 (① 담당, Public) — 명세 1.2
 // q(검색어) / sort(4종) / page,size(없거나 잘못되면 기본값 대체 1·20)
 const GET_STUDIES_QUERY_SCHEMA = z.object({
   q: z.string().trim().optional(),

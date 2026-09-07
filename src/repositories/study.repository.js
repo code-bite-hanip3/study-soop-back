@@ -1,7 +1,7 @@
 import { prisma } from '#db/prisma.js';
 import { STUDY_SORT } from '#constants';
 
-// 카드에 노출할 상위 응원 이모지 개수 (명세 5.2 reactions 상위 3개)
+// 카드에 노출할 상위 응원 이모지 개수 (명세 1.2 reactions 상위 3개)
 const REACTIONS_PER_CARD = 3;
 
 // 스터디 여러 개의 "상위 3개 응원 이모지"를 한 번의 쿼리로 가져와
@@ -26,7 +26,7 @@ async function getTopReactionsByStudyIds(studyIds) {
   return map;
 }
 
-// 스터디 목록 조회 (GET /studies) — ① 담당, 명세 5.2
+// 스터디 목록 조회 (GET /studies) — ① 담당, 명세 1.2
 // q(이름 부분 검색) / sort(4종) / page,size(기본값 대체) / passwordHash 제외 → { items, page, size, totalCount }
 function getStudies({ q, sort, page = 1, size = 20 } = {}) {
   const where = {};

@@ -28,7 +28,7 @@ export const BACKGROUND_TYPE = {
   IMAGE: 'IMAGE',
 };
 
-// 스터디 목록 정렬 (명세 5.2 sort 쿼리 값 ↔ orderBy 매핑)
+// 스터디 목록 정렬 (명세 1.2 sort 쿼리 값 ↔ orderBy 매핑)
 export const STUDY_SORT = {
   RECENT: { createdAt: 'desc' },
   OLDEST: { createdAt: 'asc' },
