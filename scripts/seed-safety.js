@@ -1,4 +1,4 @@
-const DATABASE_NAME = 'study_forest';
+const DATABASE_NAME = 'study_soop_test';
 const RESET_CONFIRMATION = `--allow-reset=${DATABASE_NAME}`;
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
 
