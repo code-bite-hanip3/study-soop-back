@@ -12,9 +12,8 @@
 import { z } from 'zod';
 import express from 'express';
 import { HTTP_STATUS, STUDY_SORT } from '#constants';
-import { BadRequestException } from '#errors';
 import { studyRepository } from '#repositories';
-import { success } from '#utils';
+import { success, fail } from '#utils';
 
 export const studiesRouter = express.Router();
 
@@ -30,7 +29,7 @@ const GET_STUDIES_QUERY_SCHEMA = z.object({
 studiesRouter.get('/', async (req, res) => {
   const parsed = GET_STUDIES_QUERY_SCHEMA.safeParse(req.query);
   if (!parsed.success) {
-    throw new BadRequestException('잘못된 쿼리 파라미터입니다.');
+    return fail(res, HTTP_STATUS.BAD_REQUEST, '잘못된 쿼리 파라미터입니다.');
   }
 
   const data = await studyRepository.getStudies(parsed.data);
