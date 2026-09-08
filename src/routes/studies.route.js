@@ -24,7 +24,7 @@ export const studiesRouter = express.Router();
 // studiesRouter.post('/', /* validate */ async (req, res, next) => { ... });
 // studiesRouter.get('/:studyId', async (req, res, next) => { ... });
 
-studiesRouter.post('/', async (req, res) => {
+studiesRouter.post('/', async (req, res, next) => {
   const {
     creatorNickname,
     name,
@@ -34,8 +34,14 @@ studiesRouter.post('/', async (req, res) => {
     password,
   } = req.body ?? {};
 
+  if (!creatorNickname) {
+    return next(new BadRequestException('닉네임을 입력해주세요'));
+  }
   if (!name) {
-    throw new BadRequestException('스터디 이름을 입력해주세요');
+    return next(new BadRequestException('스터디 이름을 입력해주세요'));
+  }
+  if (!password || password.length < 4) {
+    return next(new BadRequestException('비밀번호는 4자 이상 입력해주세요'));
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
@@ -49,5 +55,9 @@ studiesRouter.post('/', async (req, res) => {
     passwordHash,
   });
 
-  return success(res, { status: HTTP_STATUS.CREATED, data: study });
+  return success(res, {
+    status: HTTP_STATUS.CREATED,
+    data: { id: study.id },
+    message: '스터디가 생성되었습니다.',
+  });
 });
