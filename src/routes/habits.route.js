@@ -1,8 +1,10 @@
 // 습관 라우트 (④ 오늘의 습관 담당)
+// ⚠️ 습관은 Study에 종속된 리소스 — 이 라우트는 반드시
+//   studiesRouter 안에 nested로 마운트한다: /studies/:studyId/habits
+//   (flat /habits는 범위가 전체 스터디로 넓어져 금지 )
 
-//   GET    /                 → 스터디의 습관 목록 (studies/:studyId/habits)
-//   GET    /                 → 스터디의 습관 목록 (v6: Public — 인증 없음)
-//   POST   /                 → 습관 생성 (verifyStudyPassword — Body의 password bcrypt 검증)
+//   GET    /                 → 이 스터디의 습관 목록 (req.params.studyId: Public)
+//   POST   /                 → 이 스터디의 습관 생성 (verifyStudyPassword — req.params.studyId로 조회)
 //   PATCH  /:habitId         → 습관 수정 (verifyStudyPassword)
 //   DELETE /:habitId         → 소프트 삭제 (verifyStudyPassword, isActive=false)
 import express from 'express';
