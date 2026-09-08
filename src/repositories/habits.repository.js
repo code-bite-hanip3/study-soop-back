@@ -10,14 +10,21 @@ function findById(habitId) {
   });
 }
 
-function findAllByStudyId(studyId) {
+function findAllByStudyId(studyId, dateKey) {
   return prisma.habit.findMany({
     where: { studyId: studyId, isActive: true },
     orderBy: { order: 'asc' },
+    include: {
+      records: {
+        where: { dateKey },
+      },
+    },
   });
 }
 //->Habit의 studyId 속성과 파라미터로 받는 studyId가 같아야됨
 // id: studyId 이렇게 되면 habitId = studyId 이렇게 비교하게 됨 (절대 false)
+//dateKey 추가: 이유 - 오늘의 습관 UI에서 오늘 완료, 미완료된 습관을 구분하기 위해
+//habitRecord 필드의 속성 중 하나인 dateKey가 필요하다.
 
 function update(habitId, data) {
   return prisma.habit.update({

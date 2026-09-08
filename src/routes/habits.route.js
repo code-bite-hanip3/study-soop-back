@@ -14,13 +14,33 @@ export const habitsRouter = express.Router({ mergeParams: true });
 
 // TODO(④ 담당): 아래처럼 구현
 // habitsRouter.get('/', async (req, res, next) => { ... });
+
+function getTodayDate() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 habitsRouter.get('/', async (req, res, next) => {
   const { studyId } = req.params;
-  const habits = await habitsRepository.findAllByStudyId(studyId);
+  const today = getTodayDate();
+  const habits = await habitsRepository.findAllByStudyId(studyId, today);
+  const data = habits.map((habit) => {
+    const todayRecord = habit.records[0] ?? null;
+    return {
+      id: habit.id,
+      name: habit.name,
+      order: habit.order,
+      recordId: todayRecord ? todayRecord.id : null,
+      isCompleted: todayRecord ? todayRecord.isCompleted : false,
+    };
+  });
+  //조회되는 habit에 habitRecord의 속성을 더해서 가져오기 위함
+  //recordId, isCompleted가 있어야 UI로 습관 완료 토글 기능을 만들 수 있음
+  //recordId는 토글을 한 번도 안했을 때 의도적으로 null값을 부여, isCompleted=false 부여
+  //토글 체크 시 recordId=값 을 갖고, isCompleted=true 로 변경
 
   return res.status(HTTP_STATUS.OK).json({
     success: true,
-    data: habits,
+    data: { habits: data },
     message: null,
   });
 });
