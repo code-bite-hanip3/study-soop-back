@@ -3,3 +3,4 @@
 // 패턴: route → repository(Prisma) → 예외 throw → next(error)
 
 export * from './focus-sessions.repository.js';
+export * from './study.repository.js';

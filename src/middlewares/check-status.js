@@ -1,4 +1,5 @@
 import { FOCUS_SESSION_STATUS, HTTP_STATUS } from '#constants';
+import { fail } from '#utils';
 
 export const checkStatus = (req, res, next) => {
   const status = req.body.status ?? '';
