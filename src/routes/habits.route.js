@@ -11,18 +11,35 @@ import express from 'express';
 import { habitsRepository } from '../repositories/habits.repository.js';
 import { HTTP_STATUS } from '#constants';
 import { BadRequestException, NotFoundException } from '#errors';
+import { getTodayDate } from '../utils/koreaServerTime.js';
 
 export const habitsRouter = express.Router({ mergeParams: true });
 
 // TODO(④ 담당): 아래처럼 구현
 // habitsRouter.get('/', async (req, res, next) => { ... });
+
 habitsRouter.get('/', async (req, res, next) => {
   const { studyId } = req.params;
-  const habits = await habitsRepository.findAllByStudyId(studyId);
+  const today = getTodayDate();
+  const habits = await habitsRepository.findAllByStudyId(studyId, today);
+  const data = habits.map((habit) => {
+    const todayRecord = habit.records[0] ?? null;
+    return {
+      id: habit.id,
+      name: habit.name,
+      order: habit.order,
+      recordId: todayRecord ? todayRecord.id : null,
+      isCompleted: todayRecord ? todayRecord.isCompleted : false,
+    };
+  });
+  //조회되는 habit에 habitRecord의 속성을 더해서 가져오기 위함
+  //recordId, isCompleted가 있어야 UI로 습관 완료 토글 기능을 만들 수 있음
+  //recordId는 토글을 한 번도 안했을 때 의도적으로 null값을 부여, isCompleted=false 부여
+  //토글 체크 시 recordId=값 을 갖고, isCompleted=true 로 변경
 
   return res.status(HTTP_STATUS.OK).json({
     success: true,
-    data: habits,
+    data: { habits: data },
     message: null,
   });
 });
@@ -35,13 +52,13 @@ habitsRouter.post('/', async (req, res, next) => {
     throw new BadRequestException('습관 이름은 필수 항목입니다.');
   }
 
-  const newhabit = await habitsRepository.create({ studyId, name });
+  const newHabit = await habitsRepository.create({ studyId, name });
   //{studyId, name} 이렇게 묶여 있는 이유: repository의 create에서 data 파라미터 하나만 받기 때문에
   // 묶어서 하나로 넘겨줘야 한다.
 
   return res.status(HTTP_STATUS.CREATED).json({
     success: true,
-    data: newhabit,
+    data: newHabit,
     message: '습관이 생성되었습니다.',
   });
 });
@@ -79,7 +96,7 @@ habitsRouter.delete('/:habitId', async (req, res, next) => {
 
   return res.status(HTTP_STATUS.OK).json({
     success: true,
-    data: { id: habitId, isActive: false },
+    data: removed,
     message: '습관이 종료되었습니다.',
   });
 });
