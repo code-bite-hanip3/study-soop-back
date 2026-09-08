@@ -9,15 +9,12 @@ import express from 'express';
 import { habitsRepository } from '../repositories/habits.repository.js';
 import { HTTP_STATUS } from '#constants';
 import { BadRequestException, NotFoundException } from '#errors';
+import { getTodayDate } from '../utils/koreaServerTime.js';
 
 export const habitsRouter = express.Router({ mergeParams: true });
 
 // TODO(④ 담당): 아래처럼 구현
 // habitsRouter.get('/', async (req, res, next) => { ... });
-
-function getTodayDate() {
-  return new Date().toISOString().slice(0, 10);
-}
 
 habitsRouter.get('/', async (req, res, next) => {
   const { studyId } = req.params;
@@ -53,13 +50,13 @@ habitsRouter.post('/', async (req, res, next) => {
     throw new BadRequestException('습관 이름은 필수 항목입니다.');
   }
 
-  const newhabit = await habitsRepository.create({ studyId, name });
+  const newHabit = await habitsRepository.create({ studyId, name });
   //{studyId, name} 이렇게 묶여 있는 이유: repository의 create에서 data 파라미터 하나만 받기 때문에
   // 묶어서 하나로 넘겨줘야 한다.
 
   return res.status(HTTP_STATUS.CREATED).json({
     success: true,
-    data: newhabit,
+    data: newHabit,
     message: '습관이 생성되었습니다.',
   });
 });
@@ -97,7 +94,7 @@ habitsRouter.delete('/:habitId', async (req, res, next) => {
 
   return res.status(HTTP_STATUS.OK).json({
     success: true,
-    data: { id: habitId, isActive: false },
+    data: removed,
     message: '습관이 종료되었습니다.',
   });
 });

@@ -31,6 +31,7 @@
     "@prisma/client": "^7.10.0",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
+    "dayjs": "^1.11.23",
     "express": "^5.2.1",
     "pg": "^8.23.0",
     "zod": "^4.4.3"

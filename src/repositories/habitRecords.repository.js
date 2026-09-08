@@ -1,6 +1,6 @@
 import { prisma } from '#db/prisma.js';
 
-function findByHabitandDate(habitId, dateKey) {
+function findByHabitAndDate(habitId, dateKey) {
   return prisma.habitRecord.findUnique({
     where: { habitId_dateKey: { habitId, dateKey } },
   });
@@ -26,7 +26,7 @@ function update(recordId, data) {
   });
 }
 
-function findAllByStudyandRange(studyId, from, to) {
+function findAllByStudyAndRange(studyId, from, to) {
   return prisma.habitRecord.findMany({
     where: {
       habit: { studyId },  //habit 필드를 통해 studyId로 필터링 해야된다.(habitRecord필드에는 없음)
@@ -38,8 +38,8 @@ function findAllByStudyandRange(studyId, from, to) {
 }
 
 export const habitRecordsRepository = {
-  findAllByStudyandRange,
-  findByHabitandDate,
+  findAllByStudyAndRange,
+  findByHabitAndDate,
   findById,
   create,
   update,

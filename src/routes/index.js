@@ -20,7 +20,7 @@ router.get('/health-check', (req, res) => {
 
 // 하위 라우트 등록 (도메인 완성 후 주석 해제)
 // router.use('/studies', studiesRouter);
-router.use('/studies/:studyId/habits', habitsRouter);
+router.use('/habits', habitsRouter);
 router.use('/habit-records', habitRecordsRouter);
 // router.use('/focus-sessions', focusSessionsRouter);
 // router.use('/point-histories', pointHistoriesRouter);

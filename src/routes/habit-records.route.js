@@ -39,7 +39,7 @@ habitRecordsRouter.post('/', async (req, res, next) => {
   }
 
   //습관 기록이 중복 생성되었는지 검증
-  const isExist = await habitRecordsRepository.findByHabitandDate(
+  const isExist = await habitRecordsRepository.findByHabitAndDate(
     habitId,
     today,
   );
@@ -78,11 +78,11 @@ habitRecordsRouter.patch('/:recordId', async (req, res, next) => {
   }
 
   //DB에 있는 habitRecord 정보를 아래로 업데이트 또는 생성
-  const updateRecord = await habitRecordsRepository.update(recordId, {isCompleted});
+  const updatedRecord = await habitRecordsRepository.update(recordId, {isCompleted});
 
   return res.status(HTTP_STATUS.OK).json({
     success: true,
-    data: updateRecord,
+    data: updatedRecord,
     message: isCompleted ? '습관을 완료했습니다.' : '습관을 완료해주세요',
   });
 });
@@ -95,7 +95,7 @@ habitRecordsRouter.get('/', async (req, res, next) => {
     throw new BadRequestException('studyId, from, to은 필수 항목입니다.');
   }
 
-  const records = await habitRecordsRepository.findAllByStudyandRange(
+  const records = await habitRecordsRepository.findAllByStudyAndRange(
     studyId,
     from,
     to,
