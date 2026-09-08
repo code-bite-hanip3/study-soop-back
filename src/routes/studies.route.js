@@ -11,9 +11,11 @@
 //    verifyStudyPassword(req)로 Body의 password를 bcrypt.compare 검증)
 import { z } from 'zod';
 import express from 'express';
-import { HTTP_STATUS, STUDY_SORT } from '#constants';
+import { HTTP_STATUS, BACKGROUND_TYPE, STUDY_SORT } from '#constants';
+import { BadRequestException } from '#errors';
 import { studyRepository } from '#repositories';
 import { success, fail } from '#utils';
+import bcrypt from 'bcrypt';
 
 export const studiesRouter = express.Router();
 
@@ -41,5 +43,42 @@ studiesRouter.get('/', async (req, res) => {
 });
 
 // TODO(③ 담당): 아래처럼 구현
-// studiesRouter.post('/', /* validate */ async (req, res, next) => { ... });
 // studiesRouter.get('/:studyId', async (req, res, next) => { ... });
+
+studiesRouter.post('/', async (req, res, next) => {
+  const {
+    creatorNickname,
+    name,
+    description,
+    backgroundType = BACKGROUND_TYPE.COLOR,
+    backgroundValue,
+    password,
+  } = req.body ?? {};
+
+  if (!creatorNickname) {
+    return next(new BadRequestException('닉네임을 입력해주세요'));
+  }
+  if (!name) {
+    return next(new BadRequestException('스터디 이름을 입력해주세요'));
+  }
+  if (!password || password.length < 4) {
+    return next(new BadRequestException('비밀번호는 4자 이상 입력해주세요'));
+  }
+
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  const study = await studyRepository.create({
+    creatorNickname,
+    name,
+    description,
+    backgroundType,
+    backgroundValue,
+    passwordHash,
+  });
+
+  return success(res, {
+    status: HTTP_STATUS.CREATED,
+    data: { id: study.id },
+    message: '스터디가 생성되었습니다.',
+  });
+});

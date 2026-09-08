@@ -70,6 +70,12 @@ function getStudies({ q, sort, page = 1, size = 20 } = {}) {
   });
 }
 
+// 스터디 생성 (POST /studies) — ② 담당, 명세 1.1
+function create(data) {
+  return prisma.study.create({ data });
+}
+
 export const studyRepository = {
   getStudies,
+  create,
 };
