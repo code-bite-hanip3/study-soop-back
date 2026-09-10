@@ -1,7 +1,8 @@
 import { FOCUS_SESSION_STATUS } from '#constants';
 import { BadRequestException } from '#errors';
 
-export function calculateStatusUpdate(status, data) {
+export function calculateStatusUpdate(status, prevData) {
+  const NETWORK_LATENCY_OFFSET_SECONDS = 8;
   const COMPLETE_POINT = 3;
   const BONUS_POINT = 1;
   let accumulatedSeconds;
@@ -12,9 +13,10 @@ export function calculateStatusUpdate(status, data) {
   switch (status) {
     case FOCUS_SESSION_STATUS.PAUSED: {
       const accumulatedMilliseconds =
-        new Date() - (data.lastResumedAt || data.startedAt);
+        new Date() - (prevData.lastResumedAt || prevData.startedAt);
       accumulatedSeconds =
-        data.accumulatedSeconds + Math.floor(accumulatedMilliseconds / 1000);
+        prevData.accumulatedSeconds +
+        Math.floor(accumulatedMilliseconds / 1000);
       break;
     }
     case FOCUS_SESSION_STATUS.RUNNING: {
@@ -25,17 +27,20 @@ export function calculateStatusUpdate(status, data) {
     case FOCUS_SESSION_STATUS.COMPLETED: {
       endedAt = new Date();
       const accumulatedMilliseconds =
-        data.accumulatedSeconds * 1000 +
+        prevData.accumulatedSeconds * 1000 +
         endedAt -
-        (data.lastResumedAt || data.startedAt);
+        (prevData.lastResumedAt || prevData.startedAt);
       accumulatedSeconds = Math.floor(accumulatedMilliseconds / 1000);
       earnedPoint =
         COMPLETE_POINT +
-        BONUS_POINT * Math.floor(accumulatedSeconds / (60 * 10));
+        BONUS_POINT *
+          Math.floor(
+            (accumulatedSeconds + NETWORK_LATENCY_OFFSET_SECONDS) / (60 * 10),
+          );
       break;
     }
     default: {
-      throw new BadRequestException('유효하지 않은 상태값입니다');
+      throw new BadRequestException('유효하지 않은 상태값입니다.1');
     }
   }
 
