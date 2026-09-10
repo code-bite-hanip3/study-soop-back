@@ -1,10 +1,10 @@
 import { FOCUS_SESSION_STATUS } from '#constants';
 import { prisma } from '#db/prisma.js';
 
-function getSessionList(studyId) {
+function getSessionPoint(studyId) {
   return prisma.focusSession.aggregate({
     where: {
-      studyId: studyId,
+      studyId,
     },
     _sum: {
       earnedPoint: true,
@@ -12,14 +12,20 @@ function getSessionList(studyId) {
   });
 }
 
-function createSession(studyId) {
+function getSessionList(studyId) {
+  return prisma.focusSession.findMany({
+    where: {
+      studyId,
+    },
+  });
+}
+
+function createSession(studyId = '126d30dc-bf24-4a65-be40-951fb9d1d205') {
   return prisma.focusSession.create({
     data: {
-      studyId: studyId,
+      studyId,
       durationSeconds: 0,
-      accumulatedSeconds: 0,
       status: FOCUS_SESSION_STATUS.RUNNING,
-      earnedPoint: 0,
       startedAt: new Date(),
     },
   });
@@ -51,9 +57,10 @@ function deleteSession(id) {
 }
 
 export const focusSession = {
-  getSessionList,
+  getSessionPoint,
   createSession,
   updateSession,
   deleteSession,
   findOne,
+  getSessionList,
 };
