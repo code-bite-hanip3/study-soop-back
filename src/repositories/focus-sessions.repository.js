@@ -1,7 +1,7 @@
 import { FOCUS_SESSION_STATUS } from '#constants';
 import { prisma } from '#db/prisma.js';
 
-function getSessionPoint(studyId) {
+function getSessionPoint(studyId = '126d30dc-bf24-4a65-be40-951fb9d1d205') {
   return prisma.focusSession.aggregate({
     where: {
       studyId,
@@ -12,10 +12,35 @@ function getSessionPoint(studyId) {
   });
 }
 
-function getSessionList(studyId) {
+function getSessionList(
+  cursorId,
+  studyId = '126d30dc-bf24-4a65-be40-951fb9d1d205',
+) {
   return prisma.focusSession.findMany({
     where: {
       studyId,
+    },
+    take: 10,
+    ...(cursorId && {
+      skip: 1,
+      cursor: { id: cursorId },
+    }),
+    orderBy: { createdAt: 'desc' },
+  });
+}
+
+function findOneID(id) {
+  return prisma.focusSession.findUnique({
+    where: {
+      id: id,
+    },
+  });
+}
+
+function findOneStudyId(id = '126d30dc-bf24-4a65-be40-951fb9d1d205') {
+  return prisma.focusSession.findFirst({
+    where: {
+      studyId: id,
     },
   });
 }
@@ -40,14 +65,6 @@ function updateSession(id, newData) {
   });
 }
 
-function findOne(id) {
-  return prisma.focusSession.findUnique({
-    where: {
-      id: id,
-    },
-  });
-}
-
 function deleteSession(id) {
   return prisma.focusSession.delete({
     where: {
@@ -61,6 +78,7 @@ export const focusSession = {
   createSession,
   updateSession,
   deleteSession,
-  findOne,
+  findOneID,
+  findOneStudyId,
   getSessionList,
 };

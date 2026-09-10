@@ -10,11 +10,12 @@ import {
 
 export const focusSessionsRouter = express.Router({ mergeParams: true });
 
-focusSessionsRouter.get('/', async (req, res, next) => {
+focusSessionsRouter.get('/total', async (req, res, next) => {
   try {
-    const studyId = req.params.studyId;
-    const findUser = await focusSession.findOne(studyId);
-    const result = await focusSession.getSessionPoint(studyId);
+    const studyId =
+      req.params.studyId ?? '126d30dc-bf24-4a65-be40-951fb9d1d205';
+
+    const findUser = await focusSession.findOneStudyId(studyId);
 
     if (!findUser) {
       return fail(
@@ -23,6 +24,8 @@ focusSessionsRouter.get('/', async (req, res, next) => {
         '스터디 사용자를 찾을 수 없습니다',
       );
     }
+
+    const result = await focusSession.getSessionPoint(studyId);
 
     return success(res, {
       status: HTTP_STATUS.OK,
@@ -34,10 +37,44 @@ focusSessionsRouter.get('/', async (req, res, next) => {
   }
 });
 
+focusSessionsRouter.get('/', async (req, res, next) => {
+  try {
+    const studyId =
+      req.params.studyId ?? '126d30dc-bf24-4a65-be40-951fb9d1d205';
+
+    const cursorId = req.query.id;
+    const findUser = await focusSession.findOneStudyId(studyId);
+
+    if (!findUser) {
+      return fail(
+        res,
+        HTTP_STATUS.NOT_FOUND,
+        '스터디 사용자를 찾을 수 없습니다',
+      );
+    }
+
+    const recordList = await focusSession.getSessionList(cursorId, studyId);
+
+    const nextCursor =
+      recordList.length > 0 ? recordList[recordList.length - 1].id : null;
+
+    const data = { nextCursor, recordList };
+
+    return success(res, {
+      status: HTTP_STATUS.OK,
+      data,
+      message: '사용자 목록 조회',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 focusSessionsRouter.post('/', async (req, res, next) => {
   try {
     // await requireAuth(req); 테스트 후 주석 해제
-    const studyId = req.params.studyId;
+    const studyId =
+      req.params.studyId ?? '126d30dc-bf24-4a65-be40-951fb9d1d205';
 
     const data = await focusSession.createSession(studyId);
 
@@ -56,7 +93,7 @@ focusSessionsRouter.patch('/:id', checkStatus, async (req, res, next) => {
     // await requireAuth(req);
     const id = req.params.id;
     const status = req.body.status ?? '';
-    const prevRecord = await focusSession.findOne(id);
+    const prevRecord = await focusSession.findOneID(id);
 
     if (!FOCUS_SESSION_TRANSITIONS.RUNNING.includes(status)) {
       return fail(res, HTTP_STATUS.BAD_REQUEST, '유효하지 않은 상태값입니다.3');
@@ -97,30 +134,6 @@ focusSessionsRouter.delete('/:id', async (req, res, next) => {
       status: HTTP_STATUS.OK,
       data: result,
       message: '기록이 삭제되었습니다',
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-focusSessionsRouter.get('/', async (req, res, next) => {
-  try {
-    const studyId = req.params.studyId;
-    const findUser = await focusSession.findOne(studyId);
-    const result = await focusSession.getSessionList(studyId);
-
-    if (!findUser) {
-      return fail(
-        res,
-        HTTP_STATUS.NOT_FOUND,
-        '스터디 사용자를 찾을 수 없습니다',
-      );
-    }
-
-    return success(res, {
-      status: HTTP_STATUS.OK,
-      data: result,
-      message: '사용자 목록 조회',
     });
   } catch (error) {
     next(error);
