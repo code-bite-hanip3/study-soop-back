@@ -103,10 +103,6 @@ focusSessionsRouter.patch('/:id', checkStatus, async (req, res, next) => {
       return fail(res, HTTP_STATUS.NOT_FOUND, '기록을 찾을 수 없습니다');
     }
 
-    if (prevRecord.status === FOCUS_SESSION_STATUS.COMPLETED) {
-      return fail(res, HTTP_STATUS.CONFLICT, '이미 완성된 기록입니다');
-    }
-
     const newData = calculateStatusUpdate(status, prevRecord);
 
     const updatedData = await focusSession.updateSession(id, newData);

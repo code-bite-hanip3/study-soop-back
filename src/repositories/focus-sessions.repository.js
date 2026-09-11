@@ -52,6 +52,9 @@ function createSession(studyId = '126d30dc-bf24-4a65-be40-951fb9d1d205') {
       durationSeconds: 0,
       status: FOCUS_SESSION_STATUS.RUNNING,
       startedAt: new Date(),
+      lastResumedAt: new Date(),
+      endedAt: new Date(),
+      accumulatedSeconds: 0,
     },
   });
 }
