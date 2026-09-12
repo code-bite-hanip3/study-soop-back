@@ -1,7 +1,7 @@
 import { FOCUS_SESSION_STATUS } from '#constants';
 import { prisma } from '#db/prisma.js';
 
-function getSessionPoint(studyId = '126d30dc-bf24-4a65-be40-951fb9d1d205') {
+function getSessionPoint(studyId) {
   return prisma.focusSession.aggregate({
     where: {
       studyId,
@@ -12,10 +12,7 @@ function getSessionPoint(studyId = '126d30dc-bf24-4a65-be40-951fb9d1d205') {
   });
 }
 
-function getSessionList(
-  cursorId,
-  studyId = '126d30dc-bf24-4a65-be40-951fb9d1d205',
-) {
+function getSessionList(cursorId, studyId) {
   return prisma.focusSession.findMany({
     where: {
       studyId,
@@ -25,7 +22,7 @@ function getSessionList(
       skip: 1,
       cursor: { id: cursorId },
     }),
-    orderBy: { createdAt: 'desc' },
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
   });
 }
 
@@ -37,7 +34,7 @@ function findOneID(id) {
   });
 }
 
-function findOneStudyId(id = '126d30dc-bf24-4a65-be40-951fb9d1d205') {
+function findOneStudyId(id) {
   return prisma.focusSession.findFirst({
     where: {
       studyId: id,
@@ -45,7 +42,7 @@ function findOneStudyId(id = '126d30dc-bf24-4a65-be40-951fb9d1d205') {
   });
 }
 
-function createSession(studyId = '126d30dc-bf24-4a65-be40-951fb9d1d205') {
+function createSession(studyId) {
   return prisma.focusSession.create({
     data: {
       studyId,
