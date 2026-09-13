@@ -1,21 +1,15 @@
 import { FOCUS_SESSION_STATUS } from '#constants';
 import { prisma } from '#db/prisma.js';
 
-function getSessionPoint(studyId = '126d30dc-bf24-4a65-be40-951fb9d1d205') {
-  return prisma.focusSession.aggregate({
+function getSessionPoint(studyId) {
+  return prisma.pointHistory.findFirst({
     where: {
       studyId,
-    },
-    _sum: {
-      earnedPoint: true,
     },
   });
 }
 
-function getSessionList(
-  cursorId,
-  studyId = '126d30dc-bf24-4a65-be40-951fb9d1d205',
-) {
+function getSessionList(cursorId, studyId) {
   return prisma.focusSession.findMany({
     where: {
       studyId,
@@ -25,7 +19,7 @@ function getSessionList(
       skip: 1,
       cursor: { id: cursorId },
     }),
-    orderBy: { createdAt: 'desc' },
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
   });
 }
 
@@ -37,7 +31,7 @@ function findOneID(id) {
   });
 }
 
-function findOneStudyId(id = '126d30dc-bf24-4a65-be40-951fb9d1d205') {
+function findOneStudyId(id) {
   return prisma.focusSession.findFirst({
     where: {
       studyId: id,
@@ -45,13 +39,16 @@ function findOneStudyId(id = '126d30dc-bf24-4a65-be40-951fb9d1d205') {
   });
 }
 
-function createSession(studyId = '126d30dc-bf24-4a65-be40-951fb9d1d205') {
+function createSession(studyId) {
   return prisma.focusSession.create({
     data: {
       studyId,
       durationSeconds: 0,
       status: FOCUS_SESSION_STATUS.RUNNING,
       startedAt: new Date(),
+      lastResumedAt: new Date(),
+      endedAt: new Date(),
+      accumulatedSeconds: 0,
     },
   });
 }
@@ -59,10 +56,33 @@ function createSession(studyId = '126d30dc-bf24-4a65-be40-951fb9d1d205') {
 function updateSession(id, newData) {
   return prisma.focusSession.update({
     where: {
-      id: id,
+      id,
     },
     data: newData,
   });
+}
+
+function completeFocusSession(id, studyId, newData) {
+  return prisma.$transaction([
+    prisma.focusSession.update({
+      where: {
+        id: id,
+      },
+      data: newData,
+    }),
+    prisma.pointHistory.upsert({
+      where: { studyId },
+      update: {
+        amount: {
+          increment: newData.earnedPoint,
+        },
+      },
+      create: {
+        studyId,
+        amount: newData.earnedPoint,
+      },
+    }),
+  ]);
 }
 
 function deleteSession(id) {
@@ -77,6 +97,7 @@ export const focusSession = {
   getSessionPoint,
   createSession,
   updateSession,
+  completeFocusSession,
   deleteSession,
   findOneID,
   findOneStudyId,

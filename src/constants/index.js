@@ -11,7 +11,7 @@ export const FOCUS_SESSION_STATUS = {
 // 허용된 상태 전이 (잘못된 전이 → 409 Conflict)
 export const FOCUS_SESSION_TRANSITIONS = {
   READY: ['RUNNING', 'CANCELLED'],
-  RUNNING: ['PAUSED', 'RUNNING'],
+  RUNNING: ['PAUSED', 'RUNNING', 'COMPLETED'],
   PAUSED: ['RUNNING', 'CANCELLED'],
   COMPLETED: [],
   CANCELLED: [],
