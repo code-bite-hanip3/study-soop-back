@@ -7,7 +7,7 @@ import { studiesRouter } from './studies.route.js';
 import { habitsFlatRouter } from './habits.route.js';
 import { habitRecordsRouter } from './habit-records.route.js';
 import { focusSessionsRouter } from './focus-sessions.route.js';
-// import { pointHistoriesRouter } from './point-histories.route.js';
+import { pointHistoriesRouter } from './point-histories.route.js';
 
 export const router = express.Router();
 
@@ -25,4 +25,4 @@ router.use('/studies', studiesRouter);
 router.use('/habits', habitsFlatRouter); // 습관 수정/삭제(PATCH·DELETE /:habitId) 전용 — 명세 D10·D11
 router.use('/habit-records', habitRecordsRouter);
 router.use('/focus-sessions', focusSessionsRouter);
-// router.use('/point-histories', pointHistoriesRouter);
+router.use('/point-histories', pointHistoriesRouter);
