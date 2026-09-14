@@ -164,6 +164,8 @@ studiesRouter.get('/:studyId/reactions', async (req, res, next) => {
   }
 });
 
+
+// POST /studies — 스터디 생성
 studiesRouter.post('/', async (req, res, next) => {
   const {
     creatorNickname,
@@ -174,22 +176,26 @@ studiesRouter.post('/', async (req, res, next) => {
     password,
   } = req.body ?? {};
 
-  if (!creatorNickname) {
-    return next(new BadRequestException('닉네임을 입력해주세요'));
+  const trimNickname = (creatorNickname ?? '').trim();
+  const trimName = (name ?? '').trim();
+  const trimmedDescription = (description ?? '').trim();
+
+  if (!trimNickname) {
+    return next(new BadRequestException('닉네임을 입력해 주세요'));
   }
-  if (!name) {
-    return next(new BadRequestException('스터디 이름을 입력해주세요'));
+  if (!trimName) {
+    return next(new BadRequestException('스터디 이름을 입력해 주세요'));
   }
-  if (!password || password.length < 4) {
-    return next(new BadRequestException('비밀번호는 4자 이상 입력해주세요'));
+  if (!password || password.trim().length < 4) {
+    return next(new BadRequestException('비밀번호는 4자 이상 입력해 주세요'));
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
 
   const study = await studyRepository.create({
-    creatorNickname,
-    name,
-    description,
+    creatorNickname: trimNickname,
+    name: trimName,
+    description: trimmedDescription,
     backgroundType,
     backgroundValue,
     passwordHash,
