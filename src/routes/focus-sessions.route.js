@@ -2,13 +2,17 @@ import express from 'express';
 import { focusSession } from '#repositories';
 import { calculateStatusUpdate, fail, success } from '#utils';
 import { checkStatus, requireAuth } from '#middlewares';
-import { FOCUS_SESSION_TRANSITIONS, HTTP_STATUS } from '#constants';
+import {
+  FOCUS_SESSION_STATUS,
+  FOCUS_SESSION_TRANSITIONS,
+  HTTP_STATUS,
+} from '#constants';
 
 export const focusSessionsRouter = express.Router({ mergeParams: true });
 
 focusSessionsRouter.get('/total', async (req, res, next) => {
   try {
-    const studyId = req.params.studyId;
+    const studyId = req.query.studyId;
 
     const findUser = await focusSession.findOneStudyId(studyId);
 
@@ -22,6 +26,10 @@ focusSessionsRouter.get('/total', async (req, res, next) => {
 
     const result = await focusSession.getSessionPoint(studyId);
 
+    if (!result) {
+      return fail(res, HTTP_STATUS.NOT_FOUND, '총 점수를 불러올 수 없습니다');
+    }
+
     return success(res, {
       status: HTTP_STATUS.OK,
       data: result,
@@ -34,7 +42,7 @@ focusSessionsRouter.get('/total', async (req, res, next) => {
 
 focusSessionsRouter.get('/', async (req, res, next) => {
   try {
-    const studyId = req.params.studyId;
+    const studyId = req.query.studyId;
 
     const cursorId = req.query.cursorId;
     const findUser = await focusSession.findOneStudyId(studyId);
@@ -53,7 +61,8 @@ focusSessionsRouter.get('/', async (req, res, next) => {
       recordList.length > 0 ? recordList[recordList.length - 1].id : null;
 
     const data = { nextCursor, recordList };
-
+    console.log('studyId', studyId);
+    console.log('data', data);
     return success(res, {
       status: HTTP_STATUS.OK,
       data,
@@ -67,7 +76,7 @@ focusSessionsRouter.get('/', async (req, res, next) => {
 focusSessionsRouter.post('/', async (req, res, next) => {
   try {
     // await requireAuth(req); 테스트 후 주석 해제
-    const studyId = req.body.studyId;
+    const studyId = req.body.studyId ?? '';
     const data = await focusSession.createSession(studyId);
 
     return success(res, {
@@ -85,6 +94,17 @@ focusSessionsRouter.patch('/:id', checkStatus, async (req, res, next) => {
     // await requireAuth(req);
     const id = req.params.id;
     const status = req.body.status ?? '';
+    const studyId = req.body.studyId ?? '';
+
+    const findUser = await focusSession.findOneStudyId(studyId);
+
+    if (!findUser) {
+      return fail(
+        res,
+        HTTP_STATUS.NOT_FOUND,
+        '스터디 사용자를 찾을 수 없습니다',
+      );
+    }
 
     if (!FOCUS_SESSION_TRANSITIONS.RUNNING.includes(status)) {
       return fail(res, HTTP_STATUS.BAD_REQUEST, '유효하지 않은 상태값입니다.3');
@@ -98,11 +118,22 @@ focusSessionsRouter.patch('/:id', checkStatus, async (req, res, next) => {
 
     const newData = calculateStatusUpdate(status, prevRecord);
 
-    const updatedData = await focusSession.updateSession(id, newData);
-
+    let updatedResult;
+    let pointHistory;
+    if (FOCUS_SESSION_STATUS.COMPLETED === newData.status) {
+      [updatedResult, pointHistory] = await focusSession.completeFocusSession(
+        id,
+        studyId,
+        newData,
+      );
+    } else {
+      updatedResult = await focusSession.updateSession(id, newData);
+    }
+    console.log('updatedResult', updatedResult);
+    console.log('pointHistory', pointHistory);
     return success(res, {
       status: HTTP_STATUS.OK,
-      data: updatedData,
+      data: { updatedResult, pointHistory },
       message: '기록이 수정되었습니다',
     });
   } catch (error) {
