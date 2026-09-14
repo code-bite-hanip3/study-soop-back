@@ -33,7 +33,11 @@ export async function verifyStudyPassword(req) {
   }
 
   // 스터디 조회 → 404
-  const study = await prisma.study.findUnique({ where: { id: studyId } });
+  // 전역 omit가 passwordHash를 제외하므로, 인증 비교용으로만 이 쿼리에서 hash를 다시 읽는다
+  const study = await prisma.study.findUnique({
+    where: { id: studyId },
+    omit: { passwordHash: false },
+  });
   if (!study) {
     throw new NotFoundException('스터디를 찾을 수 없습니다.');
   }
