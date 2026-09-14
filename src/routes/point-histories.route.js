@@ -1,29 +1,35 @@
-// 포인트 이력 라우트 (⑤ 오늘의 집중 담당)
-
-//   GET /    → 포인트 이력 조회  (?studyId)  — 실적 탭의 오늘 포인트 합계는 프론트에서 합산
 import express from 'express';
-import { pointHistoriesRepository } from '../repositories/point-histories.repository.js';
 import { HTTP_STATUS } from '#constants';
-import { BadRequestException } from '#errors';
-import { success } from '#utils';
+import { fail, success } from '#utils';
+import { focusSession } from '#repositories';
+import { pointHistoriesRepository } from '../repositories/point-histories.repository.js';
 
 export const pointHistoriesRouter = express.Router();
 
-// GET /point-histories?studyId=:id — 포인트 이력 조회 (⑤ 담당) — 명세 5.16
-// 조회(GET)는 Public — studyId는 필수 쿼리
 pointHistoriesRouter.get('/', async (req, res, next) => {
   try {
-    const { studyId } = req.query;
-    if (!studyId) {
-      throw new BadRequestException('studyId는 필수입니다.');
+    const studyId = req.query.studyId;
+
+    const findUser = await focusSession.findOneStudyId(studyId);
+
+    if (!findUser) {
+      return fail(
+        res,
+        HTTP_STATUS.NOT_FOUND,
+        '스터디 사용자를 찾을 수 없습니다',
+      );
     }
 
-    const data = await pointHistoriesRepository.findAllByStudyId(studyId);
+    const result = await pointHistoriesRepository.getSessionPoint(studyId);
+
+    if (!result) {
+      return fail(res, HTTP_STATUS.NOT_FOUND, '총 점수를 불러올 수 없습니다');
+    }
 
     return success(res, {
       status: HTTP_STATUS.OK,
-      data,
-      message: '포인트 이력 조회',
+      data: result,
+      message: '사용자 총 점수 조회',
     });
   } catch (error) {
     next(error);

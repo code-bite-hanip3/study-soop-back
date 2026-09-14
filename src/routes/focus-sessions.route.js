@@ -10,36 +10,6 @@ import {
 
 export const focusSessionsRouter = express.Router({ mergeParams: true });
 
-focusSessionsRouter.get('/total', async (req, res, next) => {
-  try {
-    const studyId = req.query.studyId;
-
-    const findUser = await focusSession.findOneStudyId(studyId);
-
-    if (!findUser) {
-      return fail(
-        res,
-        HTTP_STATUS.NOT_FOUND,
-        '스터디 사용자를 찾을 수 없습니다',
-      );
-    }
-
-    const result = await focusSession.getSessionPoint(studyId);
-
-    if (!result) {
-      return fail(res, HTTP_STATUS.NOT_FOUND, '총 점수를 불러올 수 없습니다');
-    }
-
-    return success(res, {
-      status: HTTP_STATUS.OK,
-      data: result,
-      message: '사용자 총 점수 조회',
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
 focusSessionsRouter.get('/', async (req, res, next) => {
   try {
     const studyId = req.query.studyId;
