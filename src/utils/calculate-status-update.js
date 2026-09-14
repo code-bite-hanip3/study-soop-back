@@ -26,9 +26,10 @@ export function calculateStatusUpdate(status, prevData) {
     }
     case FOCUS_SESSION_STATUS.COMPLETED: {
       endedAt = new Date();
+      const prevAccumulatedMilliseconds = prevData.accumulatedSeconds ?? 0;
       const accumulatedMilliseconds =
-        prevData.accumulatedSeconds * 1000 +
-        endedAt -
+        prevAccumulatedMilliseconds * 1000 +
+        endedAt.getTime() -
         (prevData.lastResumedAt || prevData.startedAt);
       accumulatedSeconds = Math.floor(accumulatedMilliseconds / 1000);
       earnedPoint =
