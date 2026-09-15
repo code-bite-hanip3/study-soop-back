@@ -1,5 +1,5 @@
 import express from 'express';
-import { focusSession } from '#repositories';
+import { focusSession, studyRepository } from '#repositories';
 import { calculateStatusUpdate, fail, success } from '#utils';
 import { checkStatus, requireAuth } from '#middlewares';
 import {
@@ -18,7 +18,7 @@ focusSessionsRouter.get('/', async (req, res, next) => {
     }
 
     const cursorId = req.query.cursorId;
-    const findUser = await focusSession.findOneStudyId(studyId);
+    const findUser = await studyRepository.getById(studyId);
 
     if (!findUser) {
       return fail(

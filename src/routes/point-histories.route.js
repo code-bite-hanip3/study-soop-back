@@ -1,7 +1,7 @@
 import express from 'express';
 import { HTTP_STATUS } from '#constants';
 import { fail, success } from '#utils';
-import { focusSession } from '#repositories';
+import { studyRepository } from '#repositories';
 import { pointHistoriesRepository } from '../repositories/point-histories.repository.js';
 
 export const pointHistoriesRouter = express.Router();
@@ -13,7 +13,7 @@ pointHistoriesRouter.get('/', async (req, res, next) => {
       return fail(res, HTTP_STATUS.BAD_REQUEST, 'studyId가 필요합니다');
     }
 
-    const findUser = await focusSession.findOneStudyId(studyId);
+    const findUser = await studyRepository.getById(studyId);
 
     if (!findUser) {
       return fail(
@@ -26,7 +26,11 @@ pointHistoriesRouter.get('/', async (req, res, next) => {
     const result = await pointHistoriesRepository.getSessionPoint(studyId);
 
     if (!result) {
-      return fail(res, HTTP_STATUS.NOT_FOUND, '총 점수를 불러올 수 없습니다');
+      return success(res, {
+        status: HTTP_STATUS.OK,
+        data: { studyId, amount: 0 },
+        message: '아직 획득한 포인트가 없습니다',
+      });
     }
 
     return success(res, {
