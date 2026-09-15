@@ -35,7 +35,6 @@ function createSession(studyId) {
   return prisma.focusSession.create({
     data: {
       studyId,
-      durationSeconds: 0,
       status: FOCUS_SESSION_STATUS.RUNNING,
       startedAt: new Date(),
       lastResumedAt: new Date(),

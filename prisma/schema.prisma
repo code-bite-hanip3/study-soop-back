@@ -1,6 +1,5 @@
 // 공부의 숲 — Prisma 스키마 (보일러플레이트 뼈대)
 
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -11,20 +10,20 @@ datasource db {
 }
 
 model Study {
-  id              String           @id @default(uuid())
+  id              String   @id @default(uuid())
   creatorNickname String
   name            String
   description     String?
-  backgroundType  String           @default("COLOR")
+  backgroundType  String   @default("COLOR")
   backgroundValue String?
   passwordHash    String
-  pointTotal      Int              @default(0)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  pointTotal      Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  habits       Habit[]
-  focusSessions FocusSession[]
-  reactions    StudyReaction[]
+  habits         Habit[]
+  focusSessions  FocusSession[]
+  reactions      StudyReaction[]
   pointHistories PointHistory[]
 }
 
@@ -34,7 +33,7 @@ model Habit {
   study     Study    @relation(fields: [studyId], references: [id], onDelete: Cascade)
   name      String
   order     Int      @default(0)
-  isActive  Boolean  @default(true)  //해당 습관의 삭제 여부를 나타냄 true: 목록에 존재
+  isActive  Boolean  @default(true) //해당 습관의 삭제 여부를 나타냄 true: 목록에 존재
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -42,31 +41,30 @@ model Habit {
 }
 
 model HabitRecord {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   habitId     String
-  habit       Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  habit       Habit     @relation(fields: [habitId], references: [id], onDelete: Cascade)
   dateKey     String // YYYY-MM-DD
-  isCompleted Boolean  @default(false)
+  isCompleted Boolean   @default(false)
   completedAt DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@unique([habitId, dateKey])
 }
 
 model FocusSession {
-  id                String    @id @default(uuid())
-  studyId           String
-  study             Study     @relation(fields: [studyId], references: [id], onDelete: Cascade)
-  durationSeconds   Int
-  accumulatedSeconds Int      @default(0)
-  status            String    @default("READY") // READY/RUNNING/PAUSED/COMPLETED/CANCELLED
-  lastResumedAt     DateTime?
-  startedAt         DateTime?
-  endedAt           DateTime?
-  earnedPoint       Int       @default(0)
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  id                 String    @id @default(uuid())
+  studyId            String
+  study              Study     @relation(fields: [studyId], references: [id], onDelete: Cascade)
+  accumulatedSeconds Int       @default(0)
+  status             String    @default("READY") // READY/RUNNING/PAUSED/COMPLETED/CANCELLED
+  lastResumedAt      DateTime?
+  startedAt          DateTime?
+  endedAt            DateTime?
+  earnedPoint        Int       @default(0)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   pointHistories PointHistory[]
 }
@@ -84,13 +82,11 @@ model StudyReaction {
 }
 
 model PointHistory {
-  id             String         @id @default(uuid())
-  studyId        String
-  study          Study          @relation(fields: [studyId], references: [id], onDelete: Cascade)
-  focusSessionId String?
-  focusSession   FocusSession?  @relation(fields: [focusSessionId], references: [id], onDelete: SetNull)
+  id             String        @id @default(uuid())
+  studyId        String        @unique
+  study          Study         @relation(fields: [studyId], references: [id], onDelete: Cascade)
+  focusSessionId String?       @unique
+  focusSession   FocusSession? @relation(fields: [focusSessionId], references: [id], onDelete: SetNull)
   amount         Int
-  type           String // FOCUS_COMPLETED/BONUS/ADJUSTMENT
-  createdAt      DateTime       @default(now())
+  createdAt      DateTime      @default(now())
 }
-
