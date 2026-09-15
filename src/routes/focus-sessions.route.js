@@ -75,7 +75,7 @@ focusSessionsRouter.get('/', async (req, res, next) => {
 
 focusSessionsRouter.post('/', async (req, res, next) => {
   try {
-    // await requireAuth(req); 테스트 후 주석 해제
+    await requireAuth(req);
     const studyId = req.body.studyId ?? '';
     const data = await focusSession.createSession(studyId);
 
@@ -91,7 +91,7 @@ focusSessionsRouter.post('/', async (req, res, next) => {
 
 focusSessionsRouter.patch('/:id', checkStatus, async (req, res, next) => {
   try {
-    // await requireAuth(req);
+    await requireAuth(req);
     const id = req.params.id;
     const status = req.body.status ?? '';
     const studyId = req.body.studyId ?? '';
@@ -143,7 +143,7 @@ focusSessionsRouter.patch('/:id', checkStatus, async (req, res, next) => {
 
 focusSessionsRouter.delete('/:id', async (req, res, next) => {
   try {
-    // await requireAuth(req);
+    await requireAuth(req);
     const id = req.params.id;
 
     const result = await focusSession.deleteSession(id);
