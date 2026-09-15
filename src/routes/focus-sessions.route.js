@@ -122,6 +122,11 @@ focusSessionsRouter.patch('/:id', checkStatus, async (req, res, next) => {
 focusSessionsRouter.delete('/:id', async (req, res, next) => {
   try {
     await requireAuth(req);
+    const studyId = req.body.studyId;
+    if (!studyId) {
+      return fail(res, HTTP_STATUS.BAD_REQUEST, 'studyId가 필요합니다');
+    }
+
     const id = req.params.id;
 
     const result = await focusSession.deleteSession(id);
