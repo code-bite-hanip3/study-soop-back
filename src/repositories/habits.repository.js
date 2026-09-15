@@ -10,6 +10,18 @@ function findById(habitId) {
   });
 }
 
+function findNameByStudyId(studyId){
+  return prisma.habit.findMany({
+    where: {
+      studyId,
+      isActive: true,
+    },
+    select: {
+      name: true,
+    },
+  })
+}
+
 function findAllByStudyId(studyId, dateKey) {
   return prisma.habit.findMany({
     where: { studyId: studyId, isActive: true },
@@ -61,6 +73,7 @@ function createMany(studyId, names) {
 export const habitsRepository = {
   create,
   findById,
+  findNameByStudyId,
   findAllByStudyId,
   update,
   remove,
