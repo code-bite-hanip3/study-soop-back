@@ -4,8 +4,8 @@ export const cors = (req, res, next) => {
   const whiteList = isDevelopment
     ? ['http://localhost:5173']
     : [
-        // 공부의 숲 프론트 배포 도메인 (Netlify) — 배포 후 실제 주소로 교체
-        'https://study-soop.netlify.app',
+        // 공부의 숲 프론트 배포 도메인 (Netlify)
+        'https://hanip3.netlify.app',
       ];
 
   
