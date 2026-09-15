@@ -1,7 +1,7 @@
 import { prisma } from '#db/prisma.js';
 
 function getSessionPoint(studyId) {
-  return prisma.pointHistory.findFirst({
+  return prisma.pointHistory.findUnique({
     where: {
       studyId,
     },
