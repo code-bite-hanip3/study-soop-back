@@ -13,6 +13,9 @@ export const focusSessionsRouter = express.Router({ mergeParams: true });
 focusSessionsRouter.get('/', async (req, res, next) => {
   try {
     const studyId = req.query.studyId;
+    if (!studyId) {
+      return fail(res, HTTP_STATUS.BAD_REQUEST, 'studyId가 필요합니다');
+    }
 
     const cursorId = req.query.cursorId;
     const findUser = await focusSession.findOneStudyId(studyId);
@@ -31,8 +34,7 @@ focusSessionsRouter.get('/', async (req, res, next) => {
       recordList.length > 0 ? recordList[recordList.length - 1].id : null;
 
     const data = { nextCursor, recordList };
-    console.log('studyId', studyId);
-    console.log('data', data);
+
     return success(res, {
       status: HTTP_STATUS.OK,
       data,
@@ -45,8 +47,12 @@ focusSessionsRouter.get('/', async (req, res, next) => {
 
 focusSessionsRouter.post('/', async (req, res, next) => {
   try {
-    // await requireAuth(req); 테스트 후 주석 해제
+    await requireAuth(req);
     const studyId = req.body.studyId ?? '';
+    if (!studyId) {
+      return fail(res, HTTP_STATUS.BAD_REQUEST, 'studyId가 필요합니다');
+    }
+
     const data = await focusSession.createSession(studyId);
 
     return success(res, {
@@ -61,10 +67,13 @@ focusSessionsRouter.post('/', async (req, res, next) => {
 
 focusSessionsRouter.patch('/:id', checkStatus, async (req, res, next) => {
   try {
-    // await requireAuth(req);
+    await requireAuth(req);
     const id = req.params.id;
     const status = req.body.status ?? '';
-    const studyId = req.body.studyId ?? '';
+    const studyId = req.body.studyId;
+    if (!studyId) {
+      return fail(res, HTTP_STATUS.BAD_REQUEST, 'studyId가 필요합니다');
+    }
 
     const findUser = await focusSession.findOneStudyId(studyId);
 
@@ -99,8 +108,7 @@ focusSessionsRouter.patch('/:id', checkStatus, async (req, res, next) => {
     } else {
       updatedResult = await focusSession.updateSession(id, newData);
     }
-    console.log('updatedResult', updatedResult);
-    console.log('pointHistory', pointHistory);
+
     return success(res, {
       status: HTTP_STATUS.OK,
       data: { updatedResult, pointHistory },
@@ -113,7 +121,7 @@ focusSessionsRouter.patch('/:id', checkStatus, async (req, res, next) => {
 
 focusSessionsRouter.delete('/:id', async (req, res, next) => {
   try {
-    // await requireAuth(req);
+    await requireAuth(req);
     const id = req.params.id;
 
     const result = await focusSession.deleteSession(id);

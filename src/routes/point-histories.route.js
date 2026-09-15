@@ -9,6 +9,9 @@ export const pointHistoriesRouter = express.Router();
 pointHistoriesRouter.get('/', async (req, res, next) => {
   try {
     const studyId = req.query.studyId;
+    if (!studyId) {
+      return fail(res, HTTP_STATUS.BAD_REQUEST, 'studyId가 필요합니다');
+    }
 
     const findUser = await focusSession.findOneStudyId(studyId);
 
