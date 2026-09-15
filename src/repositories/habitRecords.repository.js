@@ -29,8 +29,9 @@ function update(recordId, data) {
 function findAllByStudyAndRange(studyId, from, to) {
   return prisma.habitRecord.findMany({
     where: {
-      habit: { studyId },  //habit 필드를 통해 studyId로 필터링 해야된다.(habitRecord필드에는 없음)
-      dateKey: { gte: new Date(from), lte: new Date(to) }, //gte:이상, lte: 이하
+      habit: { studyId }, //habit 필드를 통해 studyId로 필터링 해야된다.(habitRecord필드에는 없음)
+      dateKey: { gte: from, lte: to }, //gte:이상, lte: 이하
+      // dateKey: { gte: new Date(from), lte: new Date(to) },
     },
     include: { habit: true },
     orderBy: { dateKey: 'asc' },
