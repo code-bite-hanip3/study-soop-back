@@ -1,6 +1,14 @@
 import { FOCUS_SESSION_STATUS } from '#constants';
 import { prisma } from '#db/prisma.js';
 
+function getSessionPoint(studyId) {
+  return prisma.pointHistory.findFirst({
+    where: {
+      studyId,
+    },
+  });
+}
+
 function getSessionList(cursorId, studyId) {
   return prisma.focusSession.findMany({
     where: {
@@ -86,6 +94,7 @@ function deleteSession(id) {
 }
 
 export const focusSession = {
+  getSessionPoint,
   createSession,
   updateSession,
   completeFocusSession,
