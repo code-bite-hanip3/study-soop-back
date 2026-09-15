@@ -13,7 +13,7 @@ export const cors = (req, res, next) => {
   res.vary('origin');
 
   
-  if (!origin && isDevelopment) {
+  if (!origin) {
     return next();
   }
 
