@@ -22,9 +22,9 @@ export const habitRecordsRouter = express.Router();
 function getTodayDate() {
   return new Date().toISOString().slice(0, 10);
 }
-const today = getTodayDate();
 
 habitRecordsRouter.post('/', async (req, res, next) => {
+  const today = getTodayDate();
   const { habitId } = req.body ?? {};
 
   //받은 데이터 검증
@@ -78,7 +78,9 @@ habitRecordsRouter.patch('/:recordId', async (req, res, next) => {
   }
 
   //DB에 있는 habitRecord 정보를 아래로 업데이트 또는 생성
-  const updatedRecord = await habitRecordsRepository.update(recordId, {isCompleted});
+  const updatedRecord = await habitRecordsRepository.update(recordId, {
+    isCompleted,
+  });
 
   return res.status(HTTP_STATUS.OK).json({
     success: true,
@@ -107,7 +109,7 @@ habitRecordsRouter.get('/', async (req, res, next) => {
     records: records.map((record) => ({
       habitId: record.habitId,
       habitName: record.habit.name,
-      dateKey: record.dateKey.toISOString().slice(0, 10),
+      dateKey: record.dateKey,
       isCompleted: record.isCompleted,
     })),
   };
