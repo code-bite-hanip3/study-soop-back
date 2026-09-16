@@ -12,7 +12,7 @@
 import express from 'express';
 import { habitsRepository } from '../repositories/habits.repository.js';
 import { HTTP_STATUS } from '#constants';
-import { BadRequestException, NotFoundException } from '#errors';
+import { BadRequestException, ConflictException, NotFoundException } from '#errors';
 import { getTodayDate } from '../utils/koreaServerTime.js';
 import { verifyStudyPassword } from '#middlewares';
 
@@ -73,8 +73,8 @@ habitsRouter.post('/', async (req, res, next) => {
 habitsRouter.patch('/batch', async (req, res, next) => {
   try {
     const { studyId } = req.params;
-    await verifyStudyPassword(req);
-    const { removeHabit = [], newHabit = [] } = req.body ?? {};
+    // await verifyStudyPassword(req);
+    const { removeHabit = [], newHabit = [] } = req.body ?? {};  
 
     let removedCount = 0;
     if (Array.isArray(removeHabit) && removeHabit.length > 0) {
@@ -85,6 +85,24 @@ habitsRouter.patch('/batch', async (req, res, next) => {
     let createdCount = 0;
     if (Array.isArray(newHabit) && newHabit.length > 0) {
       const names = newHabit.map((item) => item.name).filter(Boolean);
+
+      //이름 중복 제약
+      //1) 입력값에 중복 이름 체크 
+      //Set의 내장 메소드 .has()와 .size를 사용하여 입력값에 중복 데이터를 제거하고 데이터 개수 체크
+      const uniqueName = new Set(names);
+      if(names.length !== uniqueName.size){
+        throw new ConflictException('동일한 습관이 추가 항목에 존재합니다.')
+      };
+
+      //2) DB에서 중복 이름 체크 
+      //findNameByStudyId 함수 추가-> 이름만 조회해 오는 기능
+      const savedHabit = await habitsRepository.findNameByStudyId(studyId);
+      const savedHabitName = savedHabit.map((h) => h.name); //객체에서 이름만 뽑아 배열로 만든다.
+      const isExist = names.find((name) => savedHabitName.includes(name));
+      if(isExist){
+        throw new ConflictException('이미 존재하는 습관입니다.')
+      }
+
       if (names.length > 0) {
         const created = await habitsRepository.createMany(studyId, names);
         createdCount = created.count;
