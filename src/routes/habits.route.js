@@ -87,9 +87,12 @@ habitsRouter.patch('/batch', async (req, res, next) => {
       const names = newHabit.map((item) => item.name).filter(Boolean);
 
       //이름 중복 제약
+      const spaceCheck = (str) => str.replace(/\s+/g, '').toLowerCase();
+
       //1) 입력값에 중복 이름 체크 
       //Set의 내장 메소드 .has()와 .size를 사용하여 입력값에 중복 데이터를 제거하고 데이터 개수 체크
-      const uniqueName = new Set(names);
+      const checkNames = names.map(spaceCheck); //비교용 변수 선언
+      const uniqueName = new Set(checkNames);
       if(names.length !== uniqueName.size){
         throw new ConflictException('동일한 습관이 추가 항목에 존재합니다.')
       };
@@ -97,8 +100,8 @@ habitsRouter.patch('/batch', async (req, res, next) => {
       //2) DB에서 중복 이름 체크 
       //findNameByStudyId 함수 추가-> 이름만 조회해 오는 기능
       const savedHabit = await habitsRepository.findNameByStudyId(studyId);
-      const savedHabitName = savedHabit.map((h) => h.name); //객체에서 이름만 뽑아 배열로 만든다.
-      const isExist = names.find((name) => savedHabitName.includes(name));
+      const savedHabitName = savedHabit.map((h) => spaceCheck(h.name)); //객체에서 이름만 뽑아 배열로 만든다.
+      const isExist = names.find((name) => savedHabitName.includes(spaceCheck(name)));
       if(isExist){
         throw new ConflictException('이미 존재하는 습관입니다.')
       }
