@@ -112,6 +112,20 @@ studiesRouter.delete('/:studyId', async (req, res, next) => {
   }
 });
 
+// POST /studies/:studyId/verify-password — 스터디 비밀번호 검증
+studiesRouter.post('/:studyId/verify-password', async (req, res, next) => {
+  try {
+    await verifyStudyPassword(req);
+
+    return success(res, {
+      status: HTTP_STATUS.OK,
+      message: '비밀번호가 확인되었습니다.',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // POST /studies/:studyId/reactions — 응원 이모지 등록 (③ 담당, Public) — 명세 5.6
 // body: { emoji: "👍" } — (studyId, emoji) Unique → 같은 이모지는 count 증가
 const POST_REACTION_SCHEMA = z.object({
@@ -163,7 +177,6 @@ studiesRouter.get('/:studyId/reactions', async (req, res, next) => {
     next(error);
   }
 });
-
 
 // POST /studies — 스터디 생성
 studiesRouter.post('/', async (req, res, next) => {
