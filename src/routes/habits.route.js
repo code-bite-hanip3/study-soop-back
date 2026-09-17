@@ -73,7 +73,7 @@ habitsRouter.post('/', async (req, res, next) => {
 habitsRouter.patch('/batch', async (req, res, next) => {
   try {
     const { studyId } = req.params;
-    // await verifyStudyPassword(req);
+    await verifyStudyPassword(req);
     const { removeHabit = [], newHabit = [] } = req.body ?? {};  
 
     let removedCount = 0;
